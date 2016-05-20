@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="helloworld" default="dist">
+ 
+    <property name="src.dir" value="../src" />
+    <property name="lib.dir" value="../lib" />
+    
+ 
+    <property name="build.dir" value="build" />
+    <property name="dist.dir" value="dist" />
+ 	<property name="resource.dir" value="resources" />
+    <!-- 刪除 build.dir 與 dist.dir -->
+    <target name="clean">
+        <delete dir="${build.dir}" />
+        <delete dir="${dist.dir}" />
+    </target>
+ 
+    <!-- 建立 build.dir 與 dist.dir 與複製相關設定檔 -->
+    <target name="prepare" depends="clean">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${dist.dir}" />
+        <mkdir dir="${build.dir}/lib" />
+        <mkdir dir="${build.dir}/all" />
+        <mkdir dir="${resource.dir}" />
+    </target>
+ 
+    <target name="build" depends="prepare">
+    	<echo message="${src.dir} to ${build.dir}" />
+        <javac srcdir="${src.dir}" destdir="${build.dir}" debug="true">
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+ 
+    <!-- 將專案的編譯結果打包成 jar -->
+    <target name="jar" depends="build">
+    <echo message="${build.dir} to ${dist.dir}/lib/${ant.project.name}.jar" />
+        <jar destfile="${dist.dir}/lib/${ant.project.name}.jar">
+            <fileset dir="${build.dir}" />
+        </jar>
+    </target>
+ 
+    <!-- 複製相關的 library 與專案的 jar 和設定檔至 dist.dir 目錄 -->
+    <target name="jar-deps" depends="jar">
+        <copy todir="${dist.dir}/lib">
+            <fileset dir="${lib.dir}">
+                <include name="**/*.jar" />
+            </fileset>
+        </copy>
+    </target>
+ 
+    <!-- 將最終的檔案進行 zip 打包，並含入特定環境的設定檔或程式啟動 script -->
+    <target name="dist" depends="jar-deps">
+        <zip destfile="${ant.project.name}-all.zip">
+            <zipfileset dir="${dist.dir}">
+                <exclude name="all" />
+            </zipfileset>
+            <zipfileset dir="${resource.dir}" />
+        </zip>
+    </target>
+    
+    <target name="test1">
+    	<echo message="test1..." />
+    </target>
+ 
+</project>
